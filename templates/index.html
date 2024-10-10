@@ -6,12 +6,15 @@
     <title>Link Generator</title>
     <script>
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Đã sao chép: ' + text);
-            }).catch(err => {
-                console.error('Không thể sao chép: ', err);
-                alert('Lỗi sao chép!');
-            });
+            // Sử dụng một phần tử tạm thời để sao chép
+            const tempInput = document.createElement("input");
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand("copy");  // Sử dụng execCommand để sao chép
+            document.body.removeChild(tempInput);  // Xóa phần tử tạm thời
+
+            alert('Đã sao chép: ' + text);
         }
 
         function generateLinks(event) {
