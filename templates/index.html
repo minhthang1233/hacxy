@@ -10,6 +10,7 @@
                 alert('Đã sao chép: ' + text);
             }).catch(err => {
                 console.error('Không thể sao chép: ', err);
+                alert('Lỗi sao chép!');
             });
         }
 
@@ -35,10 +36,8 @@
                     resultDiv.innerHTML = `<h2>Kết quả:</h2>`;
                     data.results.forEach((result, index) => {
                         resultDiv.innerHTML += `
-                            <p>
-                                ${index + 1}. <span class="result-link">${result}</span>
-                                <button onclick="copyToClipboard('${result}')">Copy</button>
-                            </p>
+                            <p>${result}</p>
+                            <button onclick="copyToClipboard('${result.replace(/'/g, "\\'")}')">Copy</button>
                         `;
                     });
                 }
