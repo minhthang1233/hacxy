@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Filter and Replacer</title>
+    <style>
+        .container {
+            width: 600px;
+            margin: 20px auto;
+        }
+        textarea, input {
+            width: 100%;
+            margin: 10px 0;
+        }
+        button {
+            margin: 5px 0;
+        }
+        .result-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Link Filter and Replacer</h1>
+        <textarea id="input-text" rows="5" placeholder="Nhập văn bản tại đây..."></textarea>
+        <button id="filter-btn">Lọc liên kết</button>
+        <div id="filter-result" class="result-box" style="display: none;">
+            <h3>Các liên kết đã lọc:</h3>
+            <pre id="filtered-links"></pre>
+            <button id="copy-filter-btn">Sao chép các liên kết</button>
+        </div>
+        
+        <button id="replace-btn">Thay liên kết</button>
+        <div id="replace-result" class="result-box" style="display: none;">
+            <h3>Kết quả thay thế liên kết:</h3>
+            <pre id="replaced-text"></pre>
+            <button id="copy-replace-btn">Sao chép văn bản thay thế</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('filter-btn').addEventListener('click', function() {
+            const text = document.getElementById('input-text').value;
+            fetch('/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('filter-result').style.display = 'block';
+                document.getElementById('filtered-links').textContent = data.links.join('\n');
+            });
+        });
+
+        document.getElementById('copy-filter-btn').addEventListener('click', function() {
+            const filteredLinks = document.getElementById('filtered-links').textContent;
+            navigator.clipboard.writeText(filteredLinks);
+            alert('Đã sao chép các liên kết!');
+        });
+
+        document.getElementById('replace-btn').addEventListener('click', function() {
+            const text = document.getElementById('input-text').value;
+            fetch('/replace', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('replace-result').style.display = 'block';
+                document.getElementById('replaced-text').textContent = data.replaced_text;
+            });
+        });
+
+        document.getElementById('copy-replace-btn').addEventListener('click', function() {
+            const replacedText = document.getElementById('replaced-text').textContent;
+            navigator.clipboard.writeText(replacedText);
+            alert('Đã sao chép văn bản thay thế!');
+        });
+    </script>
+</body>
+</html>
