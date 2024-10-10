@@ -1,91 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Filter and Replacer</title>
-    <style>
-        .container {
-            width: 600px;
-            margin: 20px auto;
+    <title>Link Generator</title>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép: ' + text);
+            }).catch(err => {
+                console.error('Không thể sao chép: ', err);
+            });
         }
-        textarea, input {
-            width: 100%;
-            margin: 10px 0;
+
+        function generateLinks(event) {
+            event.preventDefault(); // Ngăn chặn việc tải lại trang
+            const link = document.querySelector('input[name="link"]').value;
+            const text = document.querySelector('input[name="text"]').value; // Lấy văn bản
+
+            fetch('/generate_links', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ link, text }) // Gửi cả link và văn bản
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('results');
+                resultDiv.innerHTML = ''; // Xóa kết quả cũ
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<h2 style="color: red;">Lỗi:</h2><p>${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<h2>Kết quả:</h2>`;
+                    resultDiv.innerHTML += `<p>Văn bản: ${data.text}</p>`; // Hiển thị văn bản cũ
+                    resultDiv.innerHTML += `<p>Liên kết mới: <span class="result-link">${data.results[0]}</span>
+                                            <button onclick="copyToClipboard('${data.results[0]}')">Copy</button>
+                                            </p>`; // Hiển thị liên kết mới
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
-        button {
-            margin: 5px 0;
-        }
-        .result-box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 10px;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Link Filter and Replacer</h1>
-        <textarea id="input-text" rows="5" placeholder="Nhập văn bản tại đây..."></textarea>
-        <button id="filter-btn">Lọc liên kết</button>
-        <div id="filter-result" class="result-box" style="display: none;">
-            <h3>Các liên kết đã lọc:</h3>
-            <pre id="filtered-links"></pre>
-            <button id="copy-filter-btn">Sao chép các liên kết</button>
-        </div>
-        
-        <button id="replace-btn">Thay liên kết</button>
-        <div id="replace-result" class="result-box" style="display: none;">
-            <h3>Kết quả thay thế liên kết:</h3>
-            <pre id="replaced-text"></pre>
-            <button id="copy-replace-btn">Sao chép văn bản thay thế</button>
-        </div>
-    </div>
+    <h1>Tạo Link Shopee</h1>
+    <form onsubmit="generateLinks(event)">
+        <label for="text">Nhập văn bản:</label>
+        <input type="text" name="text" required>
+        <br><br>
+        <label for="link">Nhập liên kết:</label>
+        <input type="text" name="link" required>
+        <button type="submit">Tạo liên kết</button>
+    </form>
 
-    <script>
-        document.getElementById('filter-btn').addEventListener('click', function() {
-            const text = document.getElementById('input-text').value;
-            fetch('/filter', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text: text }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('filter-result').style.display = 'block';
-                document.getElementById('filtered-links').textContent = data.links.join('\n');
-            });
-        });
-
-        document.getElementById('copy-filter-btn').addEventListener('click', function() {
-            const filteredLinks = document.getElementById('filtered-links').textContent;
-            navigator.clipboard.writeText(filteredLinks);
-            alert('Đã sao chép các liên kết!');
-        });
-
-        document.getElementById('replace-btn').addEventListener('click', function() {
-            const text = document.getElementById('input-text').value;
-            fetch('/replace', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text: text }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('replace-result').style.display = 'block';
-                document.getElementById('replaced-text').textContent = data.replaced_text;
-            });
-        });
-
-        document.getElementById('copy-replace-btn').addEventListener('click', function() {
-            const replacedText = document.getElementById('replaced-text').textContent;
-            navigator.clipboard.writeText(replacedText);
-            alert('Đã sao chép văn bản thay thế!');
-        });
-    </script>
+    <div id="results"></div>
 </body>
 </html>
