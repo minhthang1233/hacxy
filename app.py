@@ -34,7 +34,7 @@ def generate_links():
 
     # Tìm tất cả các link trong văn bản bằng regex
     links = re.findall(r'(https?://[^\s]+)', text)
-    results = []
+    results = text  # Khởi tạo kết quả là văn bản gốc
 
     for link in links:
         full_link = resolve_short_link(link)  # Giải mã liên kết rút gọn
@@ -45,14 +45,13 @@ def generate_links():
         encoded_link = encode_link(full_link)  # Mã hóa liên kết
 
         # Tạo liên kết mới với affiliate_id
-        result = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17385530062&sub_id=1review"
-        results.append(result)
+        new_link = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17385530062&sub_id=1review"
 
-    if not results:
-        return jsonify(error="Không tìm thấy liên kết nào để thay thế.")  # Trả về lỗi nếu không tìm thấy liên kết
+        # Thay thế liên kết cũ bằng liên kết mới trong văn bản
+        results = results.replace(link, new_link)
 
     # Trả về kết quả dưới dạng JSON
-    return jsonify(results=results)
+    return jsonify(results=[results])
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Sử dụng biến môi trường PORT
