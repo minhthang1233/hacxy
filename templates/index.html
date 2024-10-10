@@ -15,15 +15,14 @@
 
         function generateLinks(event) {
             event.preventDefault(); // Ngăn chặn việc tải lại trang
-            const link = document.querySelector('input[name="link"]').value;
-            const text = document.querySelector('input[name="text"]').value; // Lấy văn bản
+            const inputText = document.querySelector('textarea[name="text"]').value;
 
             fetch('/generate_links', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ link, text }) // Gửi cả link và văn bản
+                body: JSON.stringify({ text: inputText })
             })
             .then(response => response.json())
             .then(data => {
@@ -34,10 +33,14 @@
                     resultDiv.innerHTML = `<h2 style="color: red;">Lỗi:</h2><p>${data.error}</p>`;
                 } else {
                     resultDiv.innerHTML = `<h2>Kết quả:</h2>`;
-                    resultDiv.innerHTML += `<p>Văn bản: ${data.text}</p>`; // Hiển thị văn bản cũ
-                    resultDiv.innerHTML += `<p>Liên kết mới: <span class="result-link">${data.results[0]}</span>
-                                            <button onclick="copyToClipboard('${data.results[0]}')">Copy</button>
-                                            </p>`; // Hiển thị liên kết mới
+                    data.results.forEach((result, index) => {
+                        resultDiv.innerHTML += `
+                            <p>
+                                ${index + 1}. <span class="result-link">${result}</span>
+                                <button onclick="copyToClipboard('${result}')">Copy</button>
+                            </p>
+                        `;
+                    });
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -47,11 +50,8 @@
 <body>
     <h1>Tạo Link Shopee</h1>
     <form onsubmit="generateLinks(event)">
-        <label for="text">Nhập văn bản:</label>
-        <input type="text" name="text" required>
-        <br><br>
-        <label for="link">Nhập liên kết:</label>
-        <input type="text" name="link" required>
+        <label for="text">Nhập văn bản và liên kết:</label>
+        <textarea name="text" rows="10" required></textarea>
         <button type="submit">Tạo liên kết</button>
     </form>
 
