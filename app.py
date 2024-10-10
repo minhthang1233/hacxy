@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import urllib.parse
 import requests
 import os
+import re
 
 app = Flask(__name__)
 
@@ -22,28 +23,36 @@ def resolve_short_link(short_url):
 def index():
     return render_template('index.html')
 
-# Hàm xử lý kết quả khi người dùng nhập văn bản và liên kết
+# Hàm xử lý kết quả khi người dùng nhập văn bản
 @app.route('/generate_links', methods=['POST'])
 def generate_links():
     data = request.get_json()  # Nhận dữ liệu JSON từ yêu cầu
-    original_link = data.get('link')  # Lấy liên kết gốc
-    original_text = data.get('text')  # Lấy văn bản nhập vào
+    text = data.get('text')  # Lấy văn bản gốc
 
-    if not original_link:
-        return jsonify(error="Vui lòng cung cấp liên kết.")  # Trả về lỗi nếu không có liên kết
+    if not text:
+        return jsonify(error="Vui lòng cung cấp văn bản.")  # Trả về lỗi nếu không có văn bản
 
-    full_link = resolve_short_link(original_link)  # Giải mã liên kết rút gọn
+    # Tìm tất cả các link trong văn bản bằng regex
+    links = re.findall(r'(https?://[^\s]+)', text)
+    results = []
 
-    if not full_link:
-        return jsonify(error="Không thể giải mã liên kết rút gọn.")  # Trả về lỗi nếu không thể giải mã
+    for link in links:
+        full_link = resolve_short_link(link)  # Giải mã liên kết rút gọn
 
-    encoded_link = encode_link(full_link)  # Mã hóa liên kết
+        if not full_link:
+            continue  # Bỏ qua nếu không thể giải mã
 
-    # Chỉ tạo 1 kết quả với affiliate_id tương ứng
-    result_2 = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17305270177&sub_id=1review"
+        encoded_link = encode_link(full_link)  # Mã hóa liên kết
 
-    # Trả về kết quả dưới dạng JSON bao gồm cả văn bản và liên kết mới
-    return jsonify(results=[result_2], text=original_text)
+        # Tạo liên kết mới với affiliate_id
+        result = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17385530062&sub_id=1review"
+        results.append(result)
+
+    if not results:
+        return jsonify(error="Không tìm thấy liên kết nào để thay thế.")  # Trả về lỗi nếu không tìm thấy liên kết
+
+    # Trả về kết quả dưới dạng JSON
+    return jsonify(results=results)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Sử dụng biến môi trường PORT
