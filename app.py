@@ -32,8 +32,8 @@ def generate_links():
     if not text:
         return jsonify(error="Vui lòng cung cấp văn bản.")  # Trả về lỗi nếu không có văn bản
 
-    # Tìm tất cả các link trong văn bản bằng regex
-    links = re.findall(r'(https?://[^\s]+)', text)
+    # Tìm tất cả các link trong văn bản bằng regex chỉ cho các tên miền cụ thể
+    links = re.findall(r'(https?://(?:vn\.shp\.ee|s\.shopee\.vn)/[^\s]+)', text)
     results = text  # Khởi tạo kết quả là văn bản gốc
 
     for link in links:
