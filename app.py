@@ -1,3 +1,31 @@
+from flask import Flask, request, jsonify, render_template
+import urllib.parse
+import requests
+import os
+import re
+
+# Khởi tạo ứng dụng Flask
+app = Flask(__name__)
+
+# Hàm để mã hóa URL
+def encode_link(link):
+    base_url = link.split('?')[0]  # Lấy phần URL trước dấu hỏi
+    return urllib.parse.quote(base_url, safe='')  # Mã hóa phần đó
+
+# Hàm để giải mã liên kết rút gọn thành liên kết đầy đủ
+def resolve_short_link(short_url):
+    try:
+        response = requests.head(short_url, allow_redirects=True)
+        return response.url  # Trả về URL đầy đủ sau khi chuyển hướng
+    except requests.RequestException:
+        return None
+
+# Route cho trang chủ
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Hàm xử lý kết quả khi người dùng nhập văn bản
 @app.route('/generate_links', methods=['POST'])
 def generate_links():
     data = request.get_json()  # Nhận dữ liệu JSON từ yêu cầu
@@ -29,3 +57,7 @@ def generate_links():
 
     # Trả về kết quả dưới dạng JSON
     return jsonify(results=[results])
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # Sử dụng biến môi trường PORT
+    app.run(host='0.0.0.0', port=port)
