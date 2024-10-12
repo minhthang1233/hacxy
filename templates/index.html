@@ -6,13 +6,12 @@
     <title>Link Generator</title>
     <script>
         function copyToClipboard(text) {
-            // Sử dụng một phần tử tạm thời để sao chép
             const tempInput = document.createElement("input");
             document.body.appendChild(tempInput);
             tempInput.value = text;
             tempInput.select();
-            document.execCommand("copy");  // Sử dụng execCommand để sao chép
-            document.body.removeChild(tempInput);  // Xóa phần tử tạm thời
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
 
             alert('Đã sao chép: ' + text);
         }
@@ -39,7 +38,7 @@
                     resultDiv.innerHTML = `<h2>Kết quả:</h2>`;
                     data.results.forEach((result, index) => {
                         resultDiv.innerHTML += `
-                            <p>${result}</p>
+                            <pre>${result}</pre>
                             <button onclick="copyToClipboard('${result.replace(/'/g, "\\'")}')">Copy</button>
                         `;
                     });
