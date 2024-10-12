@@ -6,14 +6,17 @@
     <title>Link Generator</title>
     <script>
         function copyToClipboard(text) {
-            const tempInput = document.createElement("input");
+            // Thay thế các thẻ <br> bằng ký tự xuống dòng \n trước khi sao chép
+            const cleanText = text.replace(/<br\s*\/?>/gi, "\n");
+
+            const tempInput = document.createElement("textarea");
             document.body.appendChild(tempInput);
-            tempInput.value = text;
+            tempInput.value = cleanText;
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            alert('Đã sao chép: ' + text);
+            alert('Đã sao chép:\n' + cleanText);
         }
 
         function generateLinks(event) {
