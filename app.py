@@ -45,7 +45,7 @@ def generate_links():
         encoded_link = encode_link(full_link)  # Mã hóa liên kết
 
         # Tạo liên kết mới với affiliate_id
-        new_link = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17385530062&sub_id=1review"
+        new_link = f"https://shope.ee/an_redir?origin_link={encoded_link}&affiliate_id=17305270177&sub_id=huong"
 
         # Thay thế liên kết cũ bằng liên kết mới trong văn bản
         results = results.replace(link, new_link)
